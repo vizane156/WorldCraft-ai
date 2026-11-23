@@ -1,0 +1,202 @@
+[
+  {
+    "id": "market_stall_japanese",
+    "name": "Yatai Market Stall",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.35,
+    "defaultColor": "#C83E37",
+    "summary": "Timber street stall with striped canvas awning, warm paper lanterns, and counter."
+  },
+  {
+    "id": "torii_gate",
+    "name": "Vermilion Torii Gate",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.5,
+    "defaultColor": "#D13B2B",
+    "summary": "Traditional curved-lintel shrine gateway with stone column plinths."
+  },
+  {
+    "id": "tea_pavilion",
+    "name": "Cedar Tea Pavilion",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.85,
+    "defaultColor": "#8C583A",
+    "summary": "Raised wooden pavilion with tatami deck, corner posts, and tiered hip roof."
+  },
+  {
+    "id": "ramen_cart",
+    "name": "Noodle Cart",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.05,
+    "defaultColor": "#D4513B",
+    "summary": "Wheeled food cart with noren fabric curtains, steam pot, and menu board."
+  },
+  {
+    "id": "stone_lantern",
+    "name": "Toro Stone Lantern",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 0.55,
+    "defaultColor": "#F5B864",
+    "summary": "Carved granite garden lantern emitting a warm amber glow."
+  },
+  {
+    "id": "cherry_blossom_tree",
+    "name": "Sakura Tree",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.45,
+    "defaultColor": "#F29CB8",
+    "summary": "Twisting dark-bark trunk crowned with layered pink blossom clusters."
+  },
+  {
+    "id": "bamboo_cluster",
+    "name": "Bamboo Grove",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 0.7,
+    "defaultColor": "#5E9652",
+    "summary": "Segmented emerald bamboo culms with delicate upper foliage tufts."
+  },
+  {
+    "id": "koi_pond",
+    "name": "Koi Reflection Pond",
+    "category": "Japanese & Zen",
+    "theme": "japanese",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.6,
+    "defaultColor": "#358CA8",
+    "summary": "River-stone basin filled with clear rippled water, lily pads, and swimming koi."
+  },
+  {
+    "id": "fountain_stone",
+    "name": "Plaza Tiered Fountain",
+    "category": "Urban & Medieval",
+    "theme": "urban",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.65,
+    "defaultColor": "#4AA3C2",
+    "summary": "Octagonal limestone fountain with animated central water jet and basin."
+  },
+  {
+    "id": "wooden_bench",
+    "name": "Park Timber Bench",
+    "category": "Urban & Medieval",
+    "theme": "urban",
+    "defaultScale": 1.0,
+    "boundingRadius": 0.85,
+    "defaultColor": "#9E6A43",
+    "summary": "Slatted oak bench with forged cast-iron armrests."
+  },
+  {
+    "id": "cafe_terrace",
+    "name": "Bistro Parasol Set",
+    "category": "Urban & Medieval",
+    "theme": "urban",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.25,
+    "defaultColor": "#2F6F8F",
+    "summary": "Round marble bistro table with twin chairs and striped canvas parasol."
+  },
+  {
+    "id": "street_lamp",
+    "name": "Cast-Iron Street Lamp",
+    "category": "Urban & Medieval",
+    "theme": "urban",
+    "defaultScale": 1.0,
+    "boundingRadius": 0.5,
+    "defaultColor": "#FFD584",
+    "summary": "Fluted iron promenade lamppost with warm glass luminaire."
+  },
+  {
+    "id": "stone_arch",
+    "name": "Gothic Stone Arch",
+    "category": "Urban & Medieval",
+    "theme": "medieval",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.55,
+    "defaultColor": "#8C877E",
+    "summary": "Chiseled ashlar masonry archway with keystone and mossed plinths."
+  },
+  {
+    "id": "medieval_tower",
+    "name": "Watchtower Keep",
+    "category": "Urban & Medieval",
+    "theme": "medieval",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.75,
+    "defaultColor": "#48688C",
+    "summary": "Battlemented limestone keep with timber battlements, arched door, and slate spire."
+  },
+  {
+    "id": "modern_kiosk",
+    "name": "Minimalist Glass Kiosk",
+    "category": "Sci-Fi & Future",
+    "theme": "scifi",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.4,
+    "defaultColor": "#3AA78F",
+    "summary": "Cantilevered architectural glass & brushed-steel booth with info beacon."
+  },
+  {
+    "id": "cyber_tower",
+    "name": "Neon Holotower",
+    "category": "Sci-Fi & Future",
+    "theme": "scifi",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.2,
+    "defaultColor": "#2CD4D9",
+    "summary": "Monolithic dark-alloy spire with glowing cyan light strips and rotating holo-ring."
+  },
+  {
+    "id": "hover_rover",
+    "name": "Orbital Hover Rover",
+    "category": "Sci-Fi & Future",
+    "theme": "scifi",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.25,
+    "defaultColor": "#3B82F6",
+    "summary": "Six-thruster autonomous explorer craft with panoramic canopy and thruster glow."
+  },
+  {
+    "id": "crystal_monolith",
+    "name": "Energy Crystal Cluster",
+    "category": "Sci-Fi & Future",
+    "theme": "scifi",
+    "defaultScale": 1.0,
+    "boundingRadius": 0.95,
+    "defaultColor": "#7C5CFF",
+    "summary": "Faceted translucent mineral spires embedded in basalt with floating energy shards."
+  },
+  {
+    "id": "motorcycle_red",
+    "name": "Sport Cafe Racer",
+    "category": "Nature & Vehicles",
+    "theme": "vehicles",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.15,
+    "defaultColor": "#D93829",
+    "summary": "Twin-wheel street motorcycle with sculpted tank, headlight, and exhaust."
+  },
+  {
+    "id": "pine_tree",
+    "name": "Alpine Cedar Pine",
+    "category": "Nature & Vehicles",
+    "theme": "nature",
+    "defaultScale": 1.0,
+    "boundingRadius": 1.15,
+    "defaultColor": "#3B6E4C",
+    "summary": "Layered evergreen conifer tiers atop a textured bark trunk."
+  }
+]

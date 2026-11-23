@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SceneCommandBatch",
+  "type": "object",
+  "required": ["version", "commands"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "assistantMessage": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "atmosphere": {
+      "type": "string",
+      "enum": ["daylight", "golden", "twilight"]
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 24,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["action", "asset_id", "position"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "const": "spawn" },
+              "asset_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "target_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "label": { "type": "string", "maxLength": 64 },
+              "position": {
+                "type": "array",
+                "items": { "type": "number", "minimum": -10, "maximum": 10 },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rotation_y": { "type": "number", "minimum": -6.2832, "maximum": 6.2832 },
+              "scale": { "type": "number", "minimum": 0.25, "maximum": 3.0 },
+              "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["action", "target_id"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "const": "move" },
+              "target_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "position": {
+                "type": "array",
+                "items": { "type": "number", "minimum": -10, "maximum": 10 },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rotation_y": { "type": "number", "minimum": -6.2832, "maximum": 6.2832 }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["action", "target_id"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "const": "modify" },
+              "target_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+              "scale": { "type": "number", "minimum": 0.25, "maximum": 3.0 },
+              "rotation_y": { "type": "number", "minimum": -6.2832, "maximum": 6.2832 },
+              "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+              "label": { "type": "string", "maxLength": 64 }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["action", "target_id"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "const": "delete" },
+              "target_id": { "type": "string", "minLength": 1, "maxLength": 64 }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "const": "clear" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

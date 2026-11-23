@@ -1,38 +1,137 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "assets": [
     {
       "id": "market_stall_japanese",
       "label": "Japanese Market Stall",
-      "glb_path": "/assets/models/market_stall_japanese.glb",
+      "glb_path": "procedural://market_stall_japanese",
       "category": "structure",
       "default_scale": [1.0, 1.0, 1.0],
       "min_scale": 0.3,
-      "max_scale": 2.0,
+      "max_scale": 2.5,
       "pivot": "base_center",
-      "tags": ["stall", "market", "japanese", "shop"]
+      "tags": ["stall", "market", "japanese", "shop", "booth", "lantern", "awning"]
     },
     {
       "id": "fountain_stone",
       "label": "Stone Fountain",
-      "glb_path": "/assets/models/fountain_stone.glb",
+      "glb_path": "procedural://fountain_stone",
       "category": "prop",
       "default_scale": [1.0, 1.0, 1.0],
-      "min_scale": 0.2,
-      "max_scale": 1.5,
+      "min_scale": 0.3,
+      "max_scale": 2.5,
       "pivot": "base_center",
-      "tags": ["fountain", "water", "decoration"]
+      "tags": ["fountain", "water", "stone", "plaza", "decoration"]
     },
     {
       "id": "motorcycle_red",
       "label": "Red Motorcycle",
-      "glb_path": "/assets/models/motorcycle_red.glb",
+      "glb_path": "procedural://motorcycle_red",
       "category": "vehicle",
       "default_scale": [1.0, 1.0, 1.0],
       "min_scale": 0.3,
-      "max_scale": 1.5,
+      "max_scale": 2.5,
       "pivot": "base_center",
-      "tags": ["motorcycle", "bike", "vehicle", "red"]
+      "tags": ["motorcycle", "bike", "vehicle", "motorbike", "red", "sport"]
+    },
+    {
+      "id": "cherry_blossom_tree",
+      "label": "Cherry Blossom Tree",
+      "glb_path": "procedural://cherry_blossom_tree",
+      "category": "nature",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["tree", "sakura", "cherry", "blossom", "pink", "nature", "japanese"]
+    },
+    {
+      "id": "stone_lantern",
+      "label": "Toro Stone Lantern",
+      "glb_path": "procedural://stone_lantern",
+      "category": "prop",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["lantern", "toro", "light", "lamp", "stone", "japanese", "garden"]
+    },
+    {
+      "id": "torii_gate",
+      "label": "Torii Gate",
+      "glb_path": "procedural://torii_gate",
+      "category": "structure",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["torii", "gate", "shrine", "arch", "japanese", "vermilion", "red"]
+    },
+    {
+      "id": "wooden_bench",
+      "label": "Garden Bench",
+      "glb_path": "procedural://wooden_bench",
+      "category": "prop",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["bench", "seat", "chair", "wood", "park", "furniture"]
+    },
+    {
+      "id": "ramen_cart",
+      "label": "Ramen Yatai Cart",
+      "glb_path": "procedural://ramen_cart",
+      "category": "structure",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["ramen", "cart", "yatai", "food", "stall", "japanese", "street"]
+    },
+    {
+      "id": "bamboo_cluster",
+      "label": "Bamboo Grove",
+      "glb_path": "procedural://bamboo_cluster",
+      "category": "nature",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["bamboo", "plant", "green", "nature", "garden", "zen"]
+    },
+    {
+      "id": "tea_pavilion",
+      "label": "Tea House Pavilion",
+      "glb_path": "procedural://tea_pavilion",
+      "category": "structure",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["tea", "pavilion", "house", "gazebo", "pagoda", "japanese", "building"]
+    },
+    {
+      "id": "modern_kiosk",
+      "label": "Holo Information Kiosk",
+      "glb_path": "procedural://modern_kiosk",
+      "category": "prop",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["kiosk", "cyber", "futuristic", "terminal", "hologram", "modern", "scifi"]
+    },
+    {
+      "id": "koi_pond",
+      "label": "Koi Zen Pond",
+      "glb_path": "procedural://koi_pond",
+      "category": "nature",
+      "default_scale": [1.0, 1.0, 1.0],
+      "min_scale": 0.3,
+      "max_scale": 2.5,
+      "pivot": "base_center",
+      "tags": ["pond", "koi", "water", "fish", "zen", "garden", "rock"]
     }
   ]
 }

@@ -1,102 +1,100 @@
 /**
- * DesktopInteractionAdapter — mouse + keyboard input for standard 2D browsers.
- *
- * Translates mouse events into InteractionEvents identical to those produced
- * by XRInteractionAdapter. All downstream code is adapter-agnostic.
+ * DesktopInteractionAdapter — mouse + OrbitControls coordination for 2D browsers.
  *
  * Input mapping:
- *   First canvas click          → surfaceConfirmed (origin at [0, 0, 0])
- *   Click on scene object       → objectSelected
- *   Left-drag selected object   → objectMoved (XZ plane projection)
- *   Right-drag selected object  → objectRotated (horizontal delta → Y rotation)
- *   Scroll on selected object   → objectScaled
+ *   Click on scene object       → objectSelected (and temporarily suspends OrbitControls)
+ *   Left-drag selected object   → objectMoved (raycast onto horizontal tabletop plane)
+ *   Right-drag selected object  → objectRotated (Y axis)
+ *   Alt + wheel on object       → objectScaled (plain wheel zooms OrbitControls)
+ *   Drag empty canvas           → OrbitControls camera orbit / pan
  *   Mouse button release        → objectReleased (with final transform)
  */
 
 import {
+  PerspectiveCamera,
+  Plane,
   Raycaster,
+  Scene,
   Vector2,
   Vector3,
-  PerspectiveCamera,
-  Scene,
 } from '@iwsdk/core';
 import type {
   InteractionAdapter,
   InteractionEvent,
   InteractionEventHandler,
   Transform,
-} from './InteractionAdapter.js';
-import type { SceneEngine } from '../scene/SceneEngine.js';
-import type { SceneState } from '../scene/SceneState.js';
+} from './InteractionAdapter';
+import type { SceneEngine } from '../scene/SceneEngine';
+import type { SceneState } from '../scene/SceneState';
 
 const IDENTITY_QUAT: [number, number, number, number] = [0, 0, 0, 1];
 const DEFAULT_SCALE: [number, number, number] = [1, 1, 1];
-const SCENE_PLANE_Y = 0; // Objects move on the Y=0 plane in desktop mode
 
 export class DesktopInteractionAdapter implements InteractionAdapter {
   private canvas: HTMLElement;
   private camera: PerspectiveCamera;
-  private threeScene: Scene;
   private engine: SceneEngine;
   private state: SceneState;
+  private setOrbitEnabled: (enabled: boolean) => void;
 
   private handlers = new Set<InteractionEventHandler>();
   private raycaster = new Raycaster();
   private pointer = new Vector2();
+  private dragPlane = new Plane(new Vector3(0, 1, 0), 0);
+  private intersectPt = new Vector3();
 
-  private surfaceConfirmed = false;
-
-  // Drag state
   private dragObjectId: string | null = null;
-  private dragButton: number | null = null; // 0 = left, 2 = right
+  private dragButton: number | null = null;
   private lastPointerX = 0;
-  private lastPointerY = 0;
   private dragRotationY = 0;
   private dragScale = 1;
   private dragCurrentPosition: [number, number, number] = [0, 0, 0];
+  private dragOffset = new Vector3();
 
-  // Plane used for XZ position projection during drag
-  private dragStartWorldPos = new Vector3();
-
-  // Bound event handlers (stored for removal)
   private _onPointerDown: (e: PointerEvent) => void;
   private _onPointerMove: (e: PointerEvent) => void;
-  private _onPointerUp:   (e: PointerEvent) => void;
-  private _onWheel:       (e: WheelEvent)   => void;
-  private _onContextMenu: (e: Event)        => void;
+  private _onPointerUp: (e: PointerEvent) => void;
+  private _onWheel: (e: WheelEvent) => void;
+  private _onContextMenu: (e: Event) => void;
 
   constructor(
     canvas: HTMLElement,
     camera: PerspectiveCamera,
-    threeScene: Scene,
+    _threeScene: Scene,
     engine: SceneEngine,
     state: SceneState,
+    setOrbitEnabled: (enabled: boolean) => void = () => {},
   ) {
     this.canvas = canvas;
     this.camera = camera;
-    this.threeScene = threeScene;
     this.engine = engine;
     this.state = state;
+    this.setOrbitEnabled = setOrbitEnabled;
 
     this._onPointerDown = this.onPointerDown.bind(this);
     this._onPointerMove = this.onPointerMove.bind(this);
-    this._onPointerUp   = this.onPointerUp.bind(this);
-    this._onWheel       = this.onWheel.bind(this);
+    this._onPointerUp = this.onPointerUp.bind(this);
+    this._onWheel = this.onWheel.bind(this);
     this._onContextMenu = (e) => e.preventDefault();
 
-    canvas.addEventListener('pointerdown',   this._onPointerDown);
-    canvas.addEventListener('pointermove',   this._onPointerMove);
-    canvas.addEventListener('pointerup',     this._onPointerUp);
-    canvas.addEventListener('wheel',         this._onWheel, { passive: false });
-    canvas.addEventListener('contextmenu',   this._onContextMenu);
+    canvas.addEventListener('pointerdown', this._onPointerDown);
+    canvas.addEventListener('pointermove', this._onPointerMove);
+    canvas.addEventListener('pointerup', this._onPointerUp);
+    canvas.addEventListener('wheel', this._onWheel, { passive: false });
+    canvas.addEventListener('contextmenu', this._onContextMenu);
   }
 
-  // ── InteractionAdapter interface ──────────────────────────────────────────
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(_delta: number): void {
-    // Desktop adapter is event-driven; nothing to poll per frame.
+  confirmDefaultOrigin(): void {
+    const origin: Transform = {
+      position: [0, 0, 0],
+      rotation: IDENTITY_QUAT,
+      scale: DEFAULT_SCALE,
+    };
+    this.state.setOrigin(origin);
+    this.emit({ type: 'surfaceConfirmed', origin });
   }
+
+  update(_delta: number): void {}
 
   on(handler: InteractionEventHandler): () => void {
     this.handlers.add(handler);
@@ -104,102 +102,105 @@ export class DesktopInteractionAdapter implements InteractionAdapter {
   }
 
   dispose(): void {
-    this.canvas.removeEventListener('pointerdown',  this._onPointerDown);
-    this.canvas.removeEventListener('pointermove',  this._onPointerMove);
-    this.canvas.removeEventListener('pointerup',    this._onPointerUp);
-    this.canvas.removeEventListener('wheel',        this._onWheel);
-    this.canvas.removeEventListener('contextmenu',  this._onContextMenu);
+    this.canvas.removeEventListener('pointerdown', this._onPointerDown);
+    this.canvas.removeEventListener('pointermove', this._onPointerMove);
+    this.canvas.removeEventListener('pointerup', this._onPointerUp);
+    this.canvas.removeEventListener('wheel', this._onWheel);
+    this.canvas.removeEventListener('contextmenu', this._onContextMenu);
     this.handlers.clear();
   }
-
-  // ── Private event handlers ────────────────────────────────────────────────
 
   private emit(event: InteractionEvent): void {
     for (const h of this.handlers) h(event);
   }
 
-  private updatePointer(e: PointerEvent): void {
+  private updatePointer(e: PointerEvent | WheelEvent): void {
     const rect = this.canvas.getBoundingClientRect();
-    this.pointer.x =  ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
-    this.pointer.y = -((e.clientY - rect.top)   / rect.height) * 2 + 1;
+    this.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   }
 
-  private onPointerDown(e: PointerEvent): void {
-    this.updatePointer(e);
-    this.lastPointerX = e.clientX;
-    this.lastPointerY = e.clientY;
-
-    // ── Surface confirmation (first left-click anywhere on the canvas) ──────
-    if (!this.surfaceConfirmed && e.button === 0) {
-      this.surfaceConfirmed = true;
-      const origin: Transform = {
-        position: [0, 0, 0],
-        rotation: IDENTITY_QUAT,
-        scale:    DEFAULT_SCALE,
-      };
-      this.state.setOrigin(origin);
-      this.emit({ type: 'surfaceConfirmed', origin });
-      return;
-    }
-
-    if (!this.surfaceConfirmed) return;
-
-    // ── Object hit test ───────────────────────────────────────────────────
+  private hitTestObject(): { objectId: string; hitPoint: Vector3 } | null {
     this.raycaster.setFromCamera(this.pointer, this.camera);
     const meshes = Array.from(this.engine.getSceneObjects().values());
+    if (meshes.length === 0) return null;
     const hits = this.raycaster.intersectObjects(meshes, true);
+    if (hits.length === 0) return null;
 
-    if (hits.length === 0) return;
-
-    // Walk up to the direct child of scene root to find the object id
     let target = hits[0].object;
     while (target.parent !== this.engine.root && target.parent != null) {
       target = target.parent;
     }
     const objectId = target.name;
-    if (!this.state.has(objectId)) return;
+    if (!this.state.has(objectId)) return null;
+    return { objectId, hitPoint: hits[0].point };
+  }
 
+  private onPointerDown(e: PointerEvent): void {
+    this.updatePointer(e);
+    this.lastPointerX = e.clientX;
+
+    const hit = this.hitTestObject();
+    if (!hit) {
+      // Clicking empty canvas lets OrbitControls handle orbit/pan
+      if (e.button === 0 && this.engine.getSelectedId() !== null) {
+        this.engine.setSelectedId(null);
+      }
+      return;
+    }
+
+    const { objectId } = hit;
     this.dragObjectId = objectId;
-    this.dragButton   = e.button;
+    this.dragButton = e.button;
+    this.setOrbitEnabled(false);
 
     const obj = this.state.get(objectId)!;
-    this.dragRotationY = obj.transform.rotation[1];
-    this.dragScale     = obj.transform.scale[0];
+    this.dragRotationY = 2 * Math.atan2(obj.transform.rotation[1], obj.transform.rotation[3]);
+    this.dragScale = obj.transform.scale[0];
     this.dragCurrentPosition = [...obj.transform.position];
-    this.dragStartWorldPos.set(...obj.transform.position);
 
-    this.canvas.setPointerCapture(e.pointerId);
+    // Setup horizontal plane at object's Y
+    this.dragPlane.set(new Vector3(0, 1, 0), -obj.transform.position[1]);
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    if (this.raycaster.ray.intersectPlane(this.dragPlane, this.intersectPt)) {
+      this.dragOffset.set(
+        obj.transform.position[0] - this.intersectPt.x,
+        0,
+        obj.transform.position[2] - this.intersectPt.z,
+      );
+    } else {
+      this.dragOffset.set(0, 0, 0);
+    }
+
+    try {
+      this.canvas.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore if synthetic event has no active pointer
+    }
     this.emit({ type: 'objectSelected', objectId });
   }
 
   private onPointerMove(e: PointerEvent): void {
-    if (this.dragObjectId == null || !this.surfaceConfirmed) return;
+    if (this.dragObjectId == null) return;
 
     const dx = e.clientX - this.lastPointerX;
-    const dy = e.clientY - this.lastPointerY;
     this.lastPointerX = e.clientX;
-    this.lastPointerY = e.clientY;
 
     if (this.dragButton === 0) {
-      // Left drag → move on a vertical plane facing the camera (Z = object's Z)
-      // This is more intuitive in desktop 2D than projecting onto Y=0
       this.updatePointer(e);
       this.raycaster.setFromCamera(this.pointer, this.camera);
-
-      const ray = this.raycaster.ray;
-      // Project onto Z = dragStartWorldPos.z (plane facing camera)
-      const targetZ = this.dragCurrentPosition[2];
-      const t = (targetZ - ray.origin.z) / ray.direction.z;
-      if (t > 0) {
-        const worldPos = ray.origin.clone().addScaledVector(ray.direction, t);
-        const pos: [number, number, number] = [worldPos.x, worldPos.y, targetZ];
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, this.intersectPt)) {
+        const pos: [number, number, number] = [
+          this.intersectPt.x + this.dragOffset.x,
+          this.dragCurrentPosition[1],
+          this.intersectPt.z + this.dragOffset.z,
+        ];
         this.dragCurrentPosition = pos;
         this.engine.previewTransform(this.dragObjectId, pos);
         this.emit({ type: 'objectMoved', objectId: this.dragObjectId, position: pos });
       }
     } else if (this.dragButton === 2) {
-      // Right drag → rotate around Y axis
-      const ROTATION_SENSITIVITY = 0.01; // radians per pixel
+      const ROTATION_SENSITIVITY = 0.012;
       this.dragRotationY += dx * ROTATION_SENSITIVITY;
       this.emit({
         type: 'objectRotated',
@@ -207,8 +208,6 @@ export class DesktopInteractionAdapter implements InteractionAdapter {
         rotationY: this.dragRotationY,
       });
     }
-
-    void dy; // dy unused for now (could drive Y-axis translation later)
   }
 
   private onPointerUp(e: PointerEvent): void {
@@ -216,16 +215,15 @@ export class DesktopInteractionAdapter implements InteractionAdapter {
 
     const obj = this.state.get(this.dragObjectId);
     if (obj != null) {
-      // Use the live drag position, not the stale SceneState position
-      const finalTransform = {
+      const finalTransform: Transform = {
         position: this.dragCurrentPosition,
         rotation: [
           0,
           Math.sin(this.dragRotationY / 2),
           0,
           Math.cos(this.dragRotationY / 2),
-        ] as [number, number, number, number],
-        scale: [this.dragScale, this.dragScale, this.dragScale] as [number, number, number],
+        ],
+        scale: [this.dragScale, this.dragScale, this.dragScale],
       };
       this.emit({
         type: 'objectReleased',
@@ -234,33 +232,33 @@ export class DesktopInteractionAdapter implements InteractionAdapter {
       });
     }
 
-    this.canvas.releasePointerCapture(e.pointerId);
+    try {
+      this.canvas.releasePointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
     this.dragObjectId = null;
-    this.dragButton   = null;
+    this.dragButton = null;
+    this.setOrbitEnabled(true);
   }
 
   private onWheel(e: WheelEvent): void {
-    e.preventDefault();
-    if (this.dragObjectId == null && !this.surfaceConfirmed) return;
-
-    // Find the object under the pointer
-    this.updatePointer(e as unknown as PointerEvent);
-    this.raycaster.setFromCamera(this.pointer, this.camera);
-    const meshes = Array.from(this.engine.getSceneObjects().values());
-    const hits = this.raycaster.intersectObjects(meshes, true);
-    if (hits.length === 0) return;
-
-    let target = hits[0].object;
-    while (target.parent !== this.engine.root && target.parent != null) {
-      target = target.parent;
+    if (!e.altKey && !e.shiftKey) {
+      // Let OrbitControls zoom the camera cleanly
+      return;
     }
-    const objectId = target.name;
-    if (!this.state.has(objectId)) return;
+    this.updatePointer(e);
+    const hit = this.hitTestObject();
+    if (!hit) return;
 
-    const SCALE_SENSITIVITY = 0.001;
-    const obj = this.state.get(objectId)!;
-    const newScale = Math.max(0.1, obj.transform.scale[0] - e.deltaY * SCALE_SENSITIVITY);
+    e.preventDefault();
+    e.stopPropagation();
+    const obj = this.state.get(hit.objectId);
+    if (!obj) return;
 
-    this.emit({ type: 'objectScaled', objectId, scale: newScale });
+    const SCALE_SENSITIVITY = 0.0015;
+    const newScale = Math.max(0.25, Math.min(2.5, obj.transform.scale[0] - e.deltaY * SCALE_SENSITIVITY));
+    this.emit({ type: 'objectScaled', objectId: hit.objectId, scale: newScale });
+    this.engine.updateObjectManual(hit.objectId, { scale: newScale }, false);
   }
 }

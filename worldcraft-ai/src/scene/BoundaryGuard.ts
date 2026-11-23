@@ -2,29 +2,42 @@
  * BoundaryGuard — pure transform clamping rules.
  *
  * No Three.js, no IWSDK, no networking.
- * Called after every objectReleased event regardless of which adapter fired it.
  */
 
-import type { Vec3, Transform } from '../interaction/InteractionAdapter.js';
+import type { Vec3, Transform } from '../interaction/InteractionAdapter';
+
+export const DEFAULT_SCENE_RADIUS_M = 0.5;
+export const DEFAULT_MAX_OBJECTS = 20;
+export const DEFAULT_Y_MIN = 0;
+export const DEFAULT_Y_MAX = 0.35;
 
 export class BoundaryGuard {
   /**
-   * Clamp a position to a cylinder of `radiusM` around the scene origin (XZ plane).
-   * Y is left unchanged — objects can be placed at any height.
+   * Clamp a position to a cylinder of `radiusM` around the scene origin (XZ plane),
+   * and keep Y grounded within [yMin, yMax].
    */
-  clampPosition(pos: Vec3, radiusM: number): Vec3 {
+  clampPosition(
+    pos: Vec3,
+    radiusM = DEFAULT_SCENE_RADIUS_M,
+    yMin = DEFAULT_Y_MIN,
+    yMax = DEFAULT_Y_MAX,
+  ): Vec3 {
     const [x, y, z] = pos;
-    const distXZ = Math.sqrt(x * x + z * z);
-    if (distXZ <= radiusM) return [x, y, z];
+    const clampedY = Math.max(yMin, Math.min(yMax, Number.isFinite(y) ? y : 0));
+    const safeX = Number.isFinite(x) ? x : 0;
+    const safeZ = Number.isFinite(z) ? z : 0;
+    const distXZ = Math.sqrt(safeX * safeX + safeZ * safeZ);
+    if (distXZ <= radiusM) return [safeX, clampedY, safeZ];
     const scale = radiusM / distXZ;
-    return [x * scale, y, z * scale];
+    return [safeX * scale, clampedY, safeZ * scale];
   }
 
   /**
    * Clamp a uniform scale factor to [min, max].
    */
   clampScale(scale: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, scale));
+    const safe = Number.isFinite(scale) ? scale : 1.0;
+    return Math.max(min, Math.min(max, safe));
   }
 
   /**
@@ -33,12 +46,11 @@ export class BoundaryGuard {
    */
   clampTransform(
     transform: Transform,
-    radiusM: number,
-    scaleMin: number,
-    scaleMax: number,
+    radiusM = DEFAULT_SCENE_RADIUS_M,
+    scaleMin = 0.2,
+    scaleMax = 2.5,
   ): Transform {
     const clampedPos = this.clampPosition(transform.position, radiusM);
-    // Scale is stored as Vec3; clamp the X component and apply uniformly.
     const rawScale = transform.scale[0];
     const clampedS = this.clampScale(rawScale, scaleMin, scaleMax);
     return {

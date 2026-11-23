@@ -1,0 +1,6 @@
+{
+  "name": "WorldCraft AI",
+  "description": "Multimodal AI 3D & Meta Quest WebXR Spatial Scene Director powered by Gemini and Meta Immersive Web SDK (IWSDK).",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

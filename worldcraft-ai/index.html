@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -7,10 +7,25 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link rel="icon" href="data:," />
-    <title>worldcraft-ai</title>
+    <title>WorldCraft AI</title>
+    <meta
+      name="description"
+      content="Natural-language 3D and WebXR scene builder powered by Gemini."
+    />
+    <meta property="og:title" content="WorldCraft AI" />
+    <meta
+      property="og:description"
+      content="Natural-language 3D and WebXR scene builder powered by Gemini."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body style="margin: 0">
-    <div id="scene-container"></div>
+  <body>
+    <div id="scene-container" data-testid="scene-viewport"></div>
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>

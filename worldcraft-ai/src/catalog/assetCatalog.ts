@@ -5,9 +5,9 @@
  * Loaded once at startup; never fetched per-request.
  */
 
-// The JSON file is copied from backend/app/catalog/assets.json (T-04).
-// Vite resolves it as a module via the ?json import assertion.
-import catalogData from '../assets.json' assert { type: 'json' };
+// The JSON file is copied from assets catalog.
+// Vite resolves it as a JSON module.
+import catalogData from '../assets.json';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -38,6 +38,11 @@ const assetMap = new Map<string, AssetEntry>(
 /** Returns the AssetEntry for a given catalog id, or undefined if unknown. */
 export function getAsset(id: string): AssetEntry | undefined {
   return assetMap.get(id);
+}
+
+/** Returns all registered asset entries. */
+export function getAllAssets(): AssetEntry[] {
+  return catalog.assets;
 }
 
 /** Returns all registered asset IDs. */
